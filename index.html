@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopKaro - India's #1 Shopping Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f3f6; }
+        
+        /* LOGIN SCREEN - FIRST */
+        .login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: linear-gradient(135deg, #4257f2, #f15b26); display: flex;
+            align-items: center; justify-content: center; z-index: 5000;
+        }
+        .login-container {
+            background: white; padding: 40px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px; width: 90%; text-align: center;
+        }
+        .login-logo { font-size: 48px; margin-bottom: 20px; }
+        .login-title { color: #333; margin-bottom: 30px; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .form-group input:focus { outline: none; border-color: #4257f2; }
+        .login-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #4257f2, #f15b26); 
+                     color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .login-toggle { color: #4257f2; text-decoration: none; font-weight: 600; }
+        
+        /* HIDE ALL UNTIL LOGIN */
+        .main-app { display: none; }
+        
+        /* TOP HEADER */
+        .top-header { background: linear-gradient(135deg, #4257f2, #2c3e9a); color: white; padding: 8px 0; font-size: 13px; }
+        .top-bar { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; padding: 0 20px; }
+        .top-link { color: white; text-decoration: none; }
+        
+        /* MAIN HEADER */
+        .header-main { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; align-items: center; gap: 20px; }
+        .logo { font-size: 28px; font-weight: bold; color: #4257f2; text-decoration: none; }
+        .search-container { flex: 1; max-width: 600px; position: relative; background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .search-input { width: 100%; padding: 15px 20px 15px 50px; border: none; font-size: 15px; outline: none; border-radius: 4px; }
+        .search-btn { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: #f15b26; color: white; border: none; padding: 10px 12px; border-radius: 2px; cursor: pointer; }
+        .header-icons { display: flex; gap: 25px; align-items: center; }
+        .icon-box { text-align: center; cursor: pointer; padding: 8px; border-radius: 4px; transition: background 0.3s; position: relative; }
+        .icon-box:hover { background: #f8f9fa; }
+        .icon-text { font-size: 12px; margin-top: 3px; }
+        .cart-count { background: #f15b26; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; position: absolute; top: -5px; right: -5px; }
+        
+        /* CATEGORIES TABS */
+        .categories-bar { background: #232f3e; padding: 15px 0; }
+        .categories-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .categories-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .category-tab { color: #fff; text-decoration: none; padding: 12px 20px; background: rgba(255,255,255,0.1); border-radius: 25px; white-space: nowrap; transition: all 0.3s; }
+        .category-tab.active, .category-tab:hover { background: #f15b26; transform: translateY(-2px); }
+        
+        /* MAIN CONTENT */
+        .main-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        /* BANNER */
+        .banner-section { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 40px 20px; border-radius: 12px; text-align: center; margin-bottom: 30px; }
+        .banner-title { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        
+        /* PRODUCTS GRID */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .product-card { background: #fff; border: 1px solid #e9e9e9; border-radius: 8px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .product-image { width: 100%; height: 200px; object-fit: cover; }
+        .product-info { padding: 15px; }
+        .product-brand { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .product-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; height: 2.6em; overflow: hidden; }
+        .stars { color: #ffa500; font-size: 12px; margin-bottom: 5px; }
+        .price-section { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .current-price { font-size: 18px; font-weight: bold; color: #f15b26; }
+        .original-price { font-size: 14px; color: #999; text-decoration: line-through; }
+        .discount-badge { background: #f15b26; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
+        .product-actions { display: flex; gap: 5px; margin-top: 10px; }
+        .btn-small { flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.3s; }
+        .btn-cart { background: #28a745; color: white; border-color: #28a745; }
+        .btn-cart:hover { background: #218838; }
+        .btn-buy { background: #f15b26; color: white; border-color: #f15b26; font-weight: bold; }
+        .btn-buy:hover { background: #e55312; }
+        
+        /* PRODUCT DETAILS MODAL */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; max-width: 900px; width: 90%; border-radius: 12px; overflow: hidden; max-height: 90vh; }
+        .modal-header { padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+        .modal-body { padding: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; float: right; color: #999; }
+        .detail-img { width: 100%; height: 400px; object-fit: cover; border-radius: 8px; }
+        .detail-price { font-size: 32px; font-weight: bold; color: #f15b26; margin: 20px 0; }
+        .detail-rating { color: #ffa500; font-size: 20px; margin-bottom: 20px; }
+        .btn-large { width: 100%; padding: 18px; font-size: 18px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; margin: 10px 0; }
+        
+        /* FOOTER */
+        .footer { background: #232f3e; color: #fff; padding: 50px 0 20px; margin-top: 50px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .footer-section h3 { margin-bottom: 20px; color: #f15b26; }
+        .footer-section a { color: #ccc; text-decoration: none; }
+        .footer-section a:hover { color: #f15b26; }
+        
+        @media (max-width: 768px) {
+            .modal-body { grid-template-columns: 1fr; }
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .categories-tabs { gap: 5px; }
+            .category-tab { padding: 8px 12px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN - FIRST SCREEN REQUIRED -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-logo">🛒</div>
+            <h2 class="login-title">Welcome to ShopKaro</h2>
+            <p style="color: #666; margin-bottom: 30px;">Login to continue shopping</p>
+            
+            <div id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="📧 Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="🔒 Password" required>
+                </div>
+                <button class="login-btn" onclick="loginUser()">Login</button>
+                <p style="margin-top: 20px; font-size: 14px;">
+                    New User? <a href="#" class="login-toggle" onclick="showRegister()">Register Now</a>
+                </p>
+            </div>
+            
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <input type="text" id="regName" placeholder="👤 Full Name">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="regEmail" placeholder="📧 Email">
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="regPhone" placeholder="📱 Phone">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="regPassword" placeholder="🔒 Password">
+                </div>
+                <button class="login-btn" onclick="registerUser()">Create Account</button>
+                <p style="margin-top: 20px; font-size: 14px;">
+                    Already have account? <a href="#" class="login-toggle" onclick="showLogin()">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP (HIDDEN UNTIL LOGIN) -->
+    <div class="main-app" id="mainApp">
+        <!-- TOP HEADER -->
+        <div class="top-header">
+            <div class="top-bar">
+                <div class="top-left">Free Delivery & Returns • 100% Purchase Protection</div>
+                <div class="top-right">
+                    <a href="#" class="top-link">Customer Care</a>
+                    <a href="#" class="top-link">Track Order</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN HEADER -->
+        <header class="header-main">
+            <div class="header-container">
+                <a href="#" class="logo" onclick="showSection('all')">🛒 ShopKaro</a>
+                <div class="search-container">
+                    <button class="search-btn" onclick="searchProducts()">🔍</button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for products, brands and more">
+                </div>
+                <div class="header-icons">
+                    <div class="icon-box" onclick="logout()">
+                        <i class="fas fa-user"></i>
+                        <div class="icon-text">Logout</div>
+                    </div>
+                    <div class="icon-box" onclick="showCart()" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                        <div class="icon-text">Cart</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CATEGORIES TABS -->
+        <nav class="categories-bar">
+            <div class="categories-container">
+                <div class="categories-tabs" id="categoriesTabs">
+                    <a href="#" class="category-tab active" onclick="showCategory('all')">All Products</a>
+                    <a href="#" class="category-tab" onclick="showCategory('mobiles')">Mobiles</a>
+                    <a href="#" class="category-tab" onclick="showCategory('laptops')">Laptops</a>
+                    <a href="#" class="category-tab" onclick="showCategory('headphones')">Headphones</a>
+                    <a href="#" class="category-tab" onclick="showCategory('fashion')">Fashion</a>
+                    <a href="#" class="category-tab" onclick="showCategory('home')">Home & Kitchen</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-container">
+            <div class="banner-section" id="bannerSection">
+                <h1 class="banner-title">Big Billion Days Sale!</h1>
+                <p>Up to 80% OFF + Extra Bank Offers • Shop Now</p>
+            </div>
+
+            <!-- PRODUCTS SECTIONS -->
+            <div id="productsContainer">
+                <div id="all" class="section active">
+                    <div class="products-grid" id="allProducts"></div>
+                </div>
+                <div id="mobiles" class="section">
+                    <div class="products-grid" id="mobilesProducts"></div>
+                </div>
+                <div id="laptops" class="section">
+                    <div class="products-grid" id="laptopsProducts"></div>
+                </div>
+                <div id="headphones" class="section">
+                    <div class="products-grid" id="headphonesProducts"></div>
+                </div>
+                <div id="fashion" class="section">
+                    <div class="products-grid" id="fashionProducts"></div>
+                </div>
+                <div id="home" class="section">
+                    <div class="products-grid" id="homeProducts"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCT DETAILS MODAL -->
+        <div id="productModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                    <h2 id="modalTitle"></h2>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImg" class="detail-img" src="">
+                    <div>
+                        <div class="detail-rating" id="modalRating"></div>
+                        <div id="modalBrand" style="font-size: 18px; color: #666; margin-bottom: 10px;"></div>
+                        <div id="modalPrice" class="detail-price"></div>
+                        <div id="modalDesc" style="margin: 20px 0; line-height: 1.6; color: #333;"></div>
+                        <div style="display: flex; gap: 15px;">
+                            <button class="btn-large btn-cart" onclick="addToCartFromModal()">🛒 Add to Cart</button>
+                            <button class="btn-large btn-buy" onclick="buyNowFromModal()">💳 Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer" style="display: none;" id="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>ShopKaro</h3>
+                <p>India's #1 Shopping Platform</p>
+            </div>
+            <div class="footer-section">
+                <h3>Help</h3>
+                <p>Payments • Shipping • Returns • FAQ</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // CATEGORIZED PRODUCTS WITH RATINGS
+        const products = {
+            mobiles: [
+                {id:1, name:"iPhone 15 Pro Max (256GB)", brand:"APPLE", price:119999, originalPrice:149999, discount:20, rating:4.8, img:"https://images.unsplash.com/photo-1690483588921-9f7a2b3d44f1?w=220&h=200&fit=crop", desc:"Titanium design, A17 Pro chip, 48MP camera system"},
+                {id:2, name:"Galaxy S24 Ultra (256GB)", brand:"SAMSUNG", price:109999, originalPrice:139999, discount:21, rating:4.7, img:"https://images.unsplash.com/photo-1701363688064-c3aa7f31641e?w=220&h=200&fit=crop", desc:"S Pen included, 200MP camera, Titanium frame"},
+                {id:3, name:"OnePlus 12 (256GB)", brand:"ONEPLUS", price:64999, originalPrice:69999, discount:7, rating:4.6, img:"https://images.unsplash.com/photo-1556656794-5ff53582f20e?w=220&h=200&fit=crop", desc:"120Hz AMOLED display, 80W fast charging"}
+            ],
+            laptops: [
+                {id:4, name:"MacBook Air M3 (16GB/512GB)", brand:"APPLE", price:134999, originalPrice:159999, discount:16, rating:4.9, img:"https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=220&h=200&fit=crop", desc:"Fanless design, 18hr battery life, Retina display"},
+                {id:5, name:"XPS 13 (Core Ultra 7)", brand:"DELL", price:112999, originalPrice:134999, discount:16, rating:4.7, img:"https://images.unsplash.com/photo-1583394838336-acd977736f90?w=220&h=200&fit=crop", desc:"OLED display option, premium build quality"}
+            ],
+            headphones: [
+                {id:6, name:"WH-1000XM5 Wireless", brand:"SONY", price:28990, originalPrice:34990, discount:17, rating:4.8, img:"https://images.unsplash.com/photo-1613040810438-5777e77a75f2?w=220&h=200&fit=crop", desc:"Industry-leading ANC, 30hr battery life"},
+                {id:7, name:"AirPods Pro 2nd Gen", brand:"APPLE", price:22900, originalPrice:24900, discount:8, rating:4.6, img:"https://images.unsplash.com/photo-1588711296571-eef1d7278a80?w=220&h=200&fit=crop", desc:"Adaptive transparency, USB-C charging case"}
+            ],
+            fashion: [
+                {id:8, name:"Slim Fit Formal Shirt", brand:"PETER ENGLAND", price:1299, originalPrice:2499, discount:48, rating:4.4, img:"https://images.unsplash.com/photo-1578937274213-b13d1adfb5b5?w=220&h=200&fit=crop", desc:"Premium cotton fabric, wrinkle-resistant"},
+                {id:9, name:"RS-X Sneakers", brand:"PUMA", price:6499, originalPrice:9999, discount:35, rating:4.5, img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=220&h=200&fit=crop", desc:"RS technology cushioning, breathable mesh"}
+            ],
+            home: [
+                {id:10, name:"Air Fryer HD9200 (4.1L)", brand:"PHILIPS", price:6999, originalPrice:9999, discount:30, rating:4.6, img:"https://images.unsplash.com/photo-1597589003888-41d72d301b95?w=220&h=200&fit=crop", desc:"Rapid Air technology, 99% less fat"}
+            ]
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let currentUser = null;
+        let currentProduct = null;
+        let currentCategory = 'all';
+
+        // LOGIN/REGISTER SYSTEM
+        function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                loadAllProducts();
+                updateCartCount();
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function registerUser() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!name || !email || !phone || !password) {
+                alert('Please fill all fields!');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.find(u => u.email === email)) {
+                alert('Email already registered!');
+                return;
+            }
+            
+            const user = { name, email, phone, password };
+            users.push(user);
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Registration successful! Please login.');
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        // CATEGORY MANAGEMENT
+        function showCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(category).classList.add('active');
+        }
+
+        function loadAllProducts() {
+            const allProducts = [];
+            Object.values(products).forEach(cat => allProducts.push(...cat));
+            
+            loadProducts('allProducts', allProducts);
+            loadProducts('mobilesProducts', products.mobiles);
+            loadProducts('laptopsProducts', products.laptops);
+            loadProducts('headphonesProducts', products.headphones);
+            loadProducts('fashionProducts', products.fashion);
+            loadProducts('homeProducts', products.home);
+        }
+
+        function loadProducts(containerId, productList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = productList.map(product => `
+                <div class="product-card" onclick="showProductDetails(${product.id})">
+                    <img src="${product.img}" class="product-image" alt="${product.name}">
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="stars">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}</div>
+                        <div class="price-section">
+                            <span class="current-price">₹${product.price.toLocaleString()}</span>
+                            <span class="original-price">₹${product.originalPrice.toLocaleString()}</span>
+                            <span class="discount-badge">${product.discount}% off</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-small btn-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                            <button class="btn-small btn-buy" onclick="event.stopPropagation(); buyNow(${product.id})">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // PRODUCT DETAILS
+        function showProductDetails(productId) {
+            // Find product across all categories
+            for (let cat in products) {
+                const product = products[cat].find(p => p.id === productId);
+                if (product) {
+                    currentProduct = product;
+                    document.getElementById('modalTitle').textContent = product.name;
+                    document.getElementById('modalImg').src = product.img;
+                    document.getElementById('modalBrand').textContent = product.brand;
+                    document.getElementById('modalPrice').innerHTML = `₹${product.price.toLocaleString()}<span style="font-size: 18px; color: #999; margin-left: 10px;">₹${product.originalPrice.toLocaleString()}</span> <span style="background: #f15b26; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">${product.discount}% off</span>`;
+                    document.getElementById('modalRating').innerHTML = `${product.rating} ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}`;
+                    document.getElementById('modalDesc').textContent = product.desc;
+                    document.getElementById('productModal').style.display = 'block';
+                    break;
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        // CART FUNCTIONS
+        function addToCart(productId) {
+            const product = findProductById(productId);
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showNotification('Added to cart! 🛒');
+        }
+
+        function buyNow(productId) {
+            const product = findProductById(productId);
+            cart = [{ ...product, quantity: 1 }];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showNotification('Added to cart for checkout! 💳');
+            showCart();
+        }
+
+        function addToCartFromModal() {
+            addToCart(currentProduct.id);
+            closeModal();
+        }
+
+        function buyNowFromModal() {
+            buyNow(currentProduct.id);
+        }
+
+        function findProductById(id) {
+            for (let cat in products) {
+                const product = products[cat].find(p => p.id === id);
+                if (product) return product;
+            }
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const cartCount = document.getElementById('cartCount');
+            cartCount.textContent = count;
+            cartCount.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        function showCart() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+            alert(`🛒 Cart Summary:\n\n${cart.map(item => `${item.name} x${item.quantity || 1} - ₹${(item.price * (item.quantity || 1)).toLocaleString()}`).join('\n')}\n\nTotal: ₹${total.toLocaleString()}\n\nProceed to checkout?`);
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const allProducts = [];
+            Object.values(products).forEach(cat => allProducts.push(...cat));
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
+            loadProducts('allProducts', filtered);
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `position: fixed; top: 100px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; z-index: 4000; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) closeModal();
+        }
+
+        window.onload = function() {
+            // Check if already logged in
+            if (localStorage.getItem('currentUser')) {
+                currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                loadAllProducts();
+            }
+        }
+    </script>
+</body>
+</html>
